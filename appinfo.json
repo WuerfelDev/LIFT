@@ -1,0 +1,32 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "WuerfelDev",
+    "enableMultiJS": true,
+    "longName": "Lift",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/lift.png",
+                "name": "LIFT_LOGO",
+                "targetPlatforms": null,
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Lift",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "43009881-61fd-4afb-92d8-cd5e5fb62f2b",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
