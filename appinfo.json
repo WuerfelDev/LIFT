@@ -11,6 +11,7 @@
         "media": [
             {
                 "file": "images/lift.png",
+                "menuIcon": true,
                 "name": "LIFT_LOGO",
                 "targetPlatforms": null,
                 "type": "png"
