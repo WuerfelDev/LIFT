@@ -5,7 +5,7 @@
     ],
     "companyName": "WuerfelDev",
     "enableMultiJS": true,
-    "longName": "Lift",
+    "longName": "LIFT",
     "projectType": "native",
     "resources": {
         "media": [
@@ -19,14 +19,14 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "Lift",
+    "shortName": "LIFT",
     "targetPlatforms": [
         "aplite",
         "basalt",
         "chalk"
     ],
     "uuid": "43009881-61fd-4afb-92d8-cd5e5fb62f2b",
-    "versionLabel": "1.0",
+    "versionLabel": "1.01",
     "watchapp": {
         "watchface": true
     }
