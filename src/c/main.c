@@ -5,24 +5,40 @@
 static Window *window;
 static TextLayer *timeLayer;
 
+/*
+--TODO--
+
+- Quick View Nachrichten
+- Bug fix wenn volle stunde unten ist
+- vibrate on disconnect
+
+*/
+
+
 static void handle_tick(struct tm *currentTime, TimeUnits units_changed) {
-if( (units_changed & MINUTE_UNIT) != 0 ) {
+  Layer *timeLayer_new = text_layer_get_layer(timeLayer);
+  GRect bounds = layer_get_bounds(timeLayer_new);
+  
+if( currentTime->tm_sec == 0 || bounds.origin.y == 0 ) {  // If minutes change
   static char timeText[] = "LI:FT"; //00:00
   strftime(timeText, sizeof(timeText), clock_is_24h_style() ? "%H:%M" : "%I:%M", currentTime);
   text_layer_set_text(timeLayer, timeText);
 }
-  Layer *timeLayer_layer = text_layer_get_layer(timeLayer);
   
-  GRect bounds = layer_get_bounds(timeLayer_layer);
+  //Layer *timeLayer_new = text_layer_get_layer(timeLayer);
+  //GRect bounds = layer_get_bounds(timeLayer_new);
   int calct = (currentTime->tm_min*60+currentTime->tm_sec)*(layer_get_bounds(window_get_root_layer(window)).size.h-PANELH)/3600;
-  if(bounds.origin.y != calct){
-    //bounds.origin.y = (minuts+(secs/59))*(layer_get_bounds(window_get_root_layer(window)).size.h-bounds.size.h)/60;  //OLD: UPDATES EVER MINUTE FOR MULTIPLE PX
-    bounds.origin.y = calct;
-    //printf("A: %i", (minuts+(secs/59))*(layer_get_bounds(window_get_root_layer(window)).size.h-bounds.size.h)/60);
-    //printf("N: %i", (minuts*60+secs)*(layer_get_bounds(window_get_root_layer(window)).size.h-bounds.size.h)/3600);
-  
-    layer_set_frame(timeLayer_layer, bounds);
-    layer_mark_dirty(timeLayer_layer);
+  if(calct>=layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH){ //Benachrichtigung ist da
+    bounds.origin.y = layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH;
+    //printf("I: %i",layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h);
+    layer_set_frame(timeLayer_new, bounds);
+  }else{
+    if(bounds.origin.y != calct){
+      //bounds.origin.y = (minuts+(secs/59))*(layer_get_bounds(window_get_root_layer(window)).size.h-bounds.size.h)/60;  //OLD: UPDATES EVERY MINUTE FOR MULTIPLE PX
+      bounds.origin.y = calct;
+    }
+    layer_set_frame(timeLayer_new, bounds);
+    //layer_mark_dirty(timeLayer_new);
   }
 }
 
@@ -50,7 +66,7 @@ static void main_window_load(Window *window) {
 
   layer_add_child(window_layer, text_layer_get_layer(timeLayer));
 
-  tick_timer_service_subscribe(SECOND_UNIT | MINUTE_UNIT, handle_tick);
+  tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
 }
 
 

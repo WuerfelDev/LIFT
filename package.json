@@ -1,0 +1,35 @@
+{
+    "author": "WuerfelDev",
+    "dependencies": {},
+    "keywords": [],
+    "name": "lift",
+    "pebble": {
+        "displayName": "LIFT",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/logo",
+                    "menuIcon": true,
+                    "name": "LOGO",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite"
+        ],
+        "uuid": "43009881-61fd-4afb-92d8-cd5e5fb62f2b",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "1.2.0"
+}
