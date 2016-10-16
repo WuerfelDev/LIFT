@@ -6,10 +6,8 @@ static Window *window;
 static TextLayer *timeLayer;
 
 /*
---TODO--
+--Need to test--
 
-- Quick View Nachrichten
-- Bug fix wenn volle stunde unten ist
 - vibrate on disconnect
 
 */
@@ -42,6 +40,12 @@ if( currentTime->tm_sec == 0 || bounds.origin.y == 0 ) {  // If minutes change
   }
 }
 
+static void bluetooth_callback(bool connected) {
+  if(!connected) {
+    vibes_double_pulse();
+  }
+}
+
 
 
 static void main_window_load(Window *window) {
@@ -67,6 +71,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(timeLayer));
 
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+  bluetooth_callback(connection_service_peek_pebble_app_connection());
 }
 
 
@@ -82,6 +87,9 @@ static void app_init(void) {
     .load = main_window_load,
     .unload = main_window_unload,
   });
+  connection_service_subscribe((ConnectionHandlers) {
+  .pebble_app_connection_handler = bluetooth_callback
+});
   window_set_background_color(window, GColorBlack); // GColorWhite
   window_stack_push(window, true);  // Animated
 }
