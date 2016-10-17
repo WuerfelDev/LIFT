@@ -8,6 +8,7 @@ static TextLayer *timeLayer;
 /*
 -- TODO --
 -show icon after disconnect for some time
+-animations (quickview & full hour)
 
 -far future:
 -settings with negative colors on BW models
