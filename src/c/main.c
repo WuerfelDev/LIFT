@@ -6,9 +6,12 @@ static Window *window;
 static TextLayer *timeLayer;
 
 /*
---Need to test--
+-- TODO --
+-show icon after disconnect for some time
 
-- vibrate on disconnect
+-far future:
+-settings with negative colors on BW models
+-settings to disable vibration on disconnect (and icon)
 
 */
 
@@ -71,7 +74,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(timeLayer));
 
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
-  bluetooth_callback(connection_service_peek_pebble_app_connection());
+  //bluetooth_callback(connection_service_peek_pebble_app_connection());
 }
 
 
