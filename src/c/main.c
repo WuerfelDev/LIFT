@@ -8,11 +8,12 @@ static TextLayer *timeLayer;
 /*
 -- TODO --
 -show icon after disconnect for some time
--animations (quickview & full hour)
+-animations (quickview & full hour) - what about hour-change while quickview is on!
+                                    - how does it work when the location is overwritten by handle_tick?
 
 -far future:
--settings with negative colors on BW models
--settings to disable vibration on disconnect (and icon)
+-settings with negative colors on monochrome/BW models
+-settings to disable vibration on disconnect (-and icon)
 
 */
 
@@ -30,17 +31,16 @@ if( currentTime->tm_sec == 0 || bounds.origin.y == 0 ) {  // If minutes change
   //Layer *timeLayer_new = text_layer_get_layer(timeLayer);
   //GRect bounds = layer_get_bounds(timeLayer_new);
   int calct = (currentTime->tm_min*60+currentTime->tm_sec)*(layer_get_bounds(window_get_root_layer(window)).size.h-PANELH)/3600;
-  if(calct>=layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH){ //Benachrichtigung ist da
+  if(calct>=layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH){ //if quickview 
     bounds.origin.y = layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH;
     //printf("I: %i",layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h);
     layer_set_frame(timeLayer_new, bounds);
   }else{
     if(bounds.origin.y != calct){
-      //bounds.origin.y = (minuts+(secs/59))*(layer_get_bounds(window_get_root_layer(window)).size.h-bounds.size.h)/60;  //OLD: UPDATES EVERY MINUTE FOR MULTIPLE PX
       bounds.origin.y = calct;
     }
     layer_set_frame(timeLayer_new, bounds);
-    //layer_mark_dirty(timeLayer_new);
+    //layer_mark_dirty(timeLayer_new); // Not needed, works fine without
   }
 }
 
@@ -94,7 +94,7 @@ static void app_init(void) {
   connection_service_subscribe((ConnectionHandlers) {
   .pebble_app_connection_handler = bluetooth_callback
 });
-  window_set_background_color(window, GColorBlack); // GColorWhite
+  window_set_background_color(window, GColorBlack);
   window_stack_push(window, true);  // Animated
 }
 
