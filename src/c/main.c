@@ -7,7 +7,7 @@ static TextLayer *timeLayer;
 
 /*
 -- TODO --
--show icon after disconnect for some time
+-show icon after disconnect for some time (not important)
 -animations (quickview & full hour) - what about hour-change while quickview is on!
                                     - how does it work when the location is overwritten by handle_tick?
 
@@ -22,27 +22,18 @@ static void handle_tick(struct tm *currentTime, TimeUnits units_changed) {
   Layer *timeLayer_new = text_layer_get_layer(timeLayer);
   GRect bounds = layer_get_bounds(timeLayer_new);
   
-if( currentTime->tm_sec == 0 || bounds.origin.y == 0 ) {  // If minutes change
   static char timeText[] = "LI:FT"; //00:00
   strftime(timeText, sizeof(timeText), clock_is_24h_style() ? "%H:%M" : "%I:%M", currentTime);
   text_layer_set_text(timeLayer, timeText);
+  bounds.origin.y = currentTime->tm_min*(layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH)/60;
+
+  //bounds.origin.y = currentTime->tm_min*(layer_get_bounds(window_get_root_layer(window)).size.h-PANELH)/60;
+  layer_set_frame(timeLayer_new, bounds);
+  //layer_mark_dirty(timeLayer_new); // Not needed, works fine without
 }
-  
-  //Layer *timeLayer_new = text_layer_get_layer(timeLayer);
-  //GRect bounds = layer_get_bounds(timeLayer_new);
-  int calct = (currentTime->tm_min*60+currentTime->tm_sec)*(layer_get_bounds(window_get_root_layer(window)).size.h-PANELH)/3600;
-  if(calct>=layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH){ //if quickview 
-    bounds.origin.y = layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h-PANELH;
-    //printf("I: %i",layer_get_unobstructed_bounds(window_get_root_layer(window)).size.h);
-    layer_set_frame(timeLayer_new, bounds);
-  }else{
-    if(bounds.origin.y != calct){
-      bounds.origin.y = calct;
-    }
-    layer_set_frame(timeLayer_new, bounds);
-    //layer_mark_dirty(timeLayer_new); // Not needed, works fine without
-  }
-}
+
+
+
 
 static void bluetooth_callback(bool connected) {
   if(!connected) {
@@ -50,11 +41,28 @@ static void bluetooth_callback(bool connected) {
   }
 }
 
+static void unobstructed_will(GRect final_unobstructed_screen_area, void *context) {
+  time_t now = time(NULL);
+  struct tm *tick_time = localtime(&now);
+  handle_tick(tick_time, MINUTE_UNIT);
+}
+
+static void unobstructed_did(void *context) {
+  time_t now = time(NULL);
+  struct tm *tick_time = localtime(&now);
+  handle_tick(tick_time, MINUTE_UNIT);
+}
+static void unobstructed_change(AnimationProgress progress, void *context) {
+  time_t now = time(NULL);
+  struct tm *tick_time = localtime(&now);
+  handle_tick(tick_time, MINUTE_UNIT);
+}
+
 
 
 static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
-  timeLayer = text_layer_create(GRect(0, 0, layer_get_bounds(window_layer).size.w, PANELH));
+  timeLayer = text_layer_create(GRect(0, 0, layer_get_bounds(window_layer).size.w, PANELH ));
   #ifdef PBL_COLOR
   text_layer_set_text_color(timeLayer, GColorWhite); // GColorWhite
   text_layer_set_background_color(timeLayer, GColorRed); // GColorBlack
@@ -74,12 +82,20 @@ static void main_window_load(Window *window) {
 
   layer_add_child(window_layer, text_layer_get_layer(timeLayer));
 
-  tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
-  //bluetooth_callback(connection_service_peek_pebble_app_connection());
+  tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+  
+  UnobstructedAreaHandlers handlers = {
+    .will_change = unobstructed_will,
+    .change = unobstructed_change,
+    .did_change = unobstructed_did
+  };
+  unobstructed_area_service_subscribe(handlers, NULL);
 }
 
 
 static void main_window_unload(Window *window) {
+  connection_service_unsubscribe();
+  unobstructed_area_service_unsubscribe();
   text_layer_destroy(timeLayer);
 }
 
